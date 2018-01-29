@@ -1,1 +1,1 @@
-web: python3 main_handler.py
+web: python main_handler.py

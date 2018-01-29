@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import requests
@@ -36,7 +36,7 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 greet_bot = BotHandler(token)
-greetings = 'fuck you'
+greetings = 'FuckYou'
 now = datetime.datetime.now()
 
 
