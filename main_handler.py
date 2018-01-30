@@ -36,7 +36,7 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 greet_bot = BotHandler(token)
-greetings = 'knockhead'
+greetings = '/knockhead'
 now = datetime.datetime.now()
 
 
@@ -55,7 +55,7 @@ def main():
         last_update_id = last_update['update_id']
         last_chat_text = last_update['message']['text']
         last_chat_id = last_update['message']['chat']['id']
-        last_chat_name = last_update['message']['chat']['first_name']
+        last_chat_name = last_update['message']['from']['first_name']
 
         if last_chat_text.lower() in greetings:
             greet_bot.send_message(last_chat_id, 'NO U, {}'.format(last_chat_name))
