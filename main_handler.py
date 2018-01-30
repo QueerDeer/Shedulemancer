@@ -43,6 +43,7 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
+test_my_id = 363412185  # tet-a-tet chat_id
 
 greet_bot = BotHandler(token)
 
@@ -63,8 +64,15 @@ def main():
 
         last_update = greet_bot.get_last_update()
 
+        # doesnt work
         if today == next_day and hour == 6:  # our time is +3 hours
             greet_bot.send_message(test_chat_id, 'Today is {}'.format(today.strftime("%A")))
+            next_date = now + datetime.timedelta(days=1)
+            next_day = next_date.day
+
+        # debugging
+        if today == next_day and hour == 6:
+            greet_bot.send_message(test_my_id, 'Today is {}'.format(today.strftime("%A")))
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
 
