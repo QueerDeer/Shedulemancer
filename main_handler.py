@@ -43,11 +43,11 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
-test_my_id = 363412185  # tet-a-tet chat_id
 
 greet_bot = BotHandler(token)
 
 greetings = '/knockhead'
+subscriptions = '/subscribe'
 scheds = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat')
 
 now = datetime.datetime.now()
@@ -64,15 +64,9 @@ def main():
 
         last_update = greet_bot.get_last_update()
 
-        # doesnt work
+        # need add subscription checking (list) and connect it's elements with test_chat_id's field (replace it)
         if today == next_day and hour == 6:  # our time is +3 hours
-            greet_bot.send_message(test_chat_id, 'Today is {} day of the week'.format(today))
-            next_date = now + datetime.timedelta(days=1)
-            next_day = next_date.day
-
-        # debugging
-        if today == next_day and hour == 6:
-            greet_bot.send_message(test_my_id, 'Today is {} day of the week'.format(today))
+            greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
 
