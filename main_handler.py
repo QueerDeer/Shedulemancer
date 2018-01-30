@@ -66,13 +66,13 @@ def main():
 
         # doesnt work
         if today == next_day and hour == 6:  # our time is +3 hours
-            greet_bot.send_message(test_chat_id, 'Today is {}'.format(today.strftime("%A")))
+            greet_bot.send_message(test_chat_id, 'Today is {} day of the week'.format(today))
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
 
         # debugging
         if today == next_day and hour == 6:
-            greet_bot.send_message(test_my_id, 'Today is {}'.format(today.strftime("%A")))
+            greet_bot.send_message(test_my_id, 'Today is {} day of the week'.format(today))
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
 
