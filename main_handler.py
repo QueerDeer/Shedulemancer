@@ -66,16 +66,16 @@ def main():
         last_update = greet_bot.get_last_update()
 
         # need add subscription checking (list) and connect it's elements with test_chat_id's field (replace it)
-        if today == next_day and hour == 7:  # our time is +3 hours
+        if today == next_day and hour == 21:  # our time is +3 hours
             greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
             next_date = now + datetime.timedelta(days=1)
-            next_day = next_date.day # it may not work correctly
+            next_day = next_date.day  # it may not work correctly
 
         if not last_update:
             continue
 
         last_update_id = last_update['update_id']
-        last_chat_text = last_update['message']['text']  # sometimes it works wrong
+        last_chat_text = last_update['message']['text']  # sometimes it works wrong, it may connect with next_day too
         last_chat_id = last_update['message']['chat']['id']
         last_chat_name = last_update['message']['from']['first_name']
 
