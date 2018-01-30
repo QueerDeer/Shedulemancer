@@ -1,1 +1,1 @@
-web: python main_handler.py
+worker: python main_handler.py
