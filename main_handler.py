@@ -50,23 +50,21 @@ greetings = '/knockhead'
 subscriptions = '/subscribe'
 scheds = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/today')
 
-now = datetime.datetime.now()
-
 
 def main():
     new_offset = None
-    next_day = now.day
+    next_day = datetime.datetime.now().day
 
     while True:
-        greet_bot.get_updates(new_offset)
-
+        now = datetime.datetime.now()
         today = now.day
         hour = now.hour
 
+        greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
 
         # need add subscription checking (list) and connect it's elements with test_chat_id's field (replace it)
-        if today == next_day and hour == 8:  # our time is +3 hours
+        if today == next_day and hour == 9:  # our time is +3 hours
             greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day  # doesnt't work?
