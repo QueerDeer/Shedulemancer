@@ -7,6 +7,7 @@ import datetime
 # also we are in need of class for processing methods (reminder of schedule, answerer...)
 
 
+# web
 class BotHandler:
     def __init__(self, token):
         self.token = token
@@ -43,17 +44,24 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
+subscribers_hour = 5
 
 greet_bot = BotHandler(token)
 
+# need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
 greetings = '/knockhead'
 subscriptions = '/subscribe'
-scheds = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/today')
+scheds = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/today', '/tomorrow')
 
 
 def main():
     new_offset = None
-    next_day = datetime.datetime.now().day
+
+    # set marker for hardcoded schedule alert
+    bot_start_date = datetime.datetime.now()
+    if bot_start_date.hour > subscribers_hour:
+        bot_start_date.replace(day=1)
+    next_day = bot_start_date.day
 
     while True:
         now = datetime.datetime.now()
@@ -63,20 +71,22 @@ def main():
         greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
 
-        # need add subscription checking (list) and connect it's elements with test_chat_id's field (replace it)
-        if today == next_day and hour == 9:  # our time is +3 hours
+        # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
+        if today == next_day and hour == subscribers_hour:  # our time is +3 hours
             greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
-            next_date = now + datetime.timedelta(days=1)
-            next_day = next_date.day  # doesnt't work?
+            next_date = now + datetime.timedelta(days=1)  # 'now' may be use elsewhere, no replace methods
+            next_day = next_date.day  # it works
 
         if not last_update:
             continue
 
+        # see JSON-style by getUpdates with offline worker on server
         last_update_id = last_update['update_id']
-        last_chat_text = last_update['message']['text']  # sometimes it works wrong, it may connect with next_day too
+        last_chat_text = last_update['message']['text']  # sometimes it works wrong? (rare error, group chat, sys_mesg?)
         last_chat_id = last_update['message']['chat']['id']
         last_chat_name = last_update['message']['from']['first_name']
 
+        # command's reactions
         if last_chat_text.lower() in greetings:
             greet_bot.send_message(last_chat_id, 'NO U, {}'.format(last_chat_name))
 
