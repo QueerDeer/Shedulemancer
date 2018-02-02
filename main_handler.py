@@ -44,7 +44,7 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
-subscribers_hour = 5
+subscribers_hour = 8
 
 greet_bot = BotHandler(token)
 
@@ -60,7 +60,7 @@ def main():
     # set marker for hardcoded schedule alert
     bot_start_date = datetime.datetime.now()
     if bot_start_date.hour > subscribers_hour:
-        bot_start_date.replace(day=1)
+        bot_start_date += datetime.timedelta(days=1)
     next_day = bot_start_date.day
 
     while True:
@@ -74,7 +74,7 @@ def main():
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
             greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
-            next_date = now + datetime.timedelta(days=1)  # 'now' may be use elsewhere, no replace methods
+            next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day  # it works
 
         if not last_update:
