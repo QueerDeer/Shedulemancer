@@ -44,7 +44,8 @@ class BotHandler:
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
-subscribers_hour = 8
+# test_my_id = 363412185
+subscribers_hour = 5
 
 greet_bot = BotHandler(token)
 
