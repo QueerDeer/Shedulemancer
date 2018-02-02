@@ -31,6 +31,14 @@ class BotHandler:
 
         return resp
 
+    def delete_message(self, chat_id, message_id):
+        params = {'chat_id': chat_id, 'message_id': message_id}
+        method = 'deleteMessage'
+
+        resp = requests.post(self.api_url + method, params)
+
+        return resp
+
     def get_last_update(self):
         get_result = self.get_updates()
 
@@ -54,32 +62,44 @@ lessons = [
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
-test_my_id = 363412185  # my test chat (not group, tet-a-tet)
-subscribers_hour = 5
+# test_my_id = 363412185  # my test chat (not group, tet-a-tet)
 
 greet_bot = BotHandler(token)
 
 # need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
-greetings = '/knockhead'  # test func
+greetings = ('/knockhead', '/knockhead@mephi_shed_bot')
 subscriptions = '/subscribe'  # feature func
-sched_days = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/sun')
-sched_coms = ('/today', '/tomorrow')
+sched_days = ('/mon', '/mon@mephi_shed_bot', '/tue', '/tue@mephi_shed_bot', '/wed', '/wed@mephi_shed_bot', '/thu', '/thu@mephi_shed_bot', '/fri', '/fri@mephi_shed_bot', '/sat', '/sat@mephi_shed_bot', '/sun', '/sun@mephi_shed_bot')
+sched_coms = ('/today', '/today@mephi_shed_bot', '/tomorrow', '/tomorrow@mephi_shed_bot')
 commands_vocabulary = {
     '/today': -1,
+    '/today@mephi_shed_bot': -1,
     '/tomorrow': 0,
+    '/tomorrow@mephi_shed_bot': 0,
 
     '/mon': 0,
+    '/mon@mephi_shed_bot': 0,
     '/tue': 1,
+    '/tue@mephi_shed_bot': 1,
     '/wed': 2,
+    '/wed@mephi_shed_bot': 2,
     '/thu': 3,
+    '/thu@mephi_shed_bot': 3,
     '/fri': 4,
+    '/fri@mephi_shed_bot': 4,
     '/sat': 5,
-    '/sun': 6
+    '/sat@mephi_shed_bot': 5,
+    '/sun': 6,
+    '/sun@mephi_shed_bot': 6
 }
 
 
 def main():
     new_offset = None
+
+    subscribers_hour = 5
+    first_alert_message_id = 0
+    second_alert_message_id = 0
 
     # set marker for hardcoded schedule alert
     bot_start_date = datetime.datetime.now()
@@ -97,14 +117,24 @@ def main():
 
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
-            greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
+            try:  # test
+                greet_bot.delete_message(test_chat_id, first_alert_message_id)
+                greet_bot.delete_message(test_chat_id, second_alert_message_id)
+            except:
+                print('cannot delete my alert')
 
-            # test, later replace with test_chat_id and remove previous test string
-            greet_bot.send_message(test_my_id, 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
-            greet_bot.send_message(test_my_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
+            first_alert = greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
+            second_alert = greet_bot.send_message(test_chat_id, 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
+            # greet_bot.send_message(test_chat_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
+
+            try:  # test
+                first_alert_message_id = first_alert.json()['result']['chat_id']
+                second_alert_message_id = second_alert.json()['result']['chat_id']
+            except:
+                print('cannot get id from json')
 
             next_date = now + datetime.timedelta(days=1)
-            next_day = next_date.day  # it works
+            next_day = next_date.day
 
         if not last_update:
             continue
