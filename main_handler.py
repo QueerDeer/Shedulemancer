@@ -4,6 +4,7 @@
 import requests
 import datetime
 
+
 # also we are in need of class for processing methods (reminder of schedule, answerer...)
 
 
@@ -40,19 +41,40 @@ class BotHandler:
 
         return last_update
 
+
 # buildup, missing pairs of tasks for list of scheds
+lessons = [
+    '10:15 — 13:30 К-923\nСтатистические методы обработки информации (доп.главы)\nОвсянникова Н.В.\n\n14:30 — 17:00 Д-304\nЦифровые динамические системы\nКтитров С.В.',
+    'Отдыхаем',
+    '10:15 — 12:40 К-923\nЦифровые динамические системы\nКтитров С.В\n\n13:35 — 16:05 К-923\n(четные) Статистические методы обработки информации (доп. главы)\nОвсянникова Н.В.\n(нечетные) Теория игр и исследование операций (доп. главы) Коновалов Р.В., Кулябичев Ю.П.\n\n16:15 — 18:40 (четные) К-822, (нечетные) К-307\nСтандартизация информационных технологий\nСтепанова Е.Б.',
+    '10:15 — 13:30 В-407\nВеб-программирование\nЛеонова Н.М.\n\n14:30 — 17:00 K-822\n(четные) Учебная (научно-исследовательская) практика\n(нечетные) Стандартизация информационных технологий\nСтепанова Е.Б.',
+    '08:30 — 10:05 каф.20\nВоенная подготовка\n\n10:15 — 17:00 каф.20\nВоенная подготовка',
+    '09:20 — 12:40 Д-312\nТеория игр и исследование операций (доп. главы)\nКоновалов Р.В., Кулябичев Ю.П.\n\n14:30 — 17:50 Д-304\nМатематическое обеспечение систем специального назначения\nПивторацкая С.В.',
+    'Отдыхаем']
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
-# test_my_id = 363412185
+test_my_id = 363412185  # my test chat (not group, tet-a-tet)
 subscribers_hour = 5
 
 greet_bot = BotHandler(token)
 
 # need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
-greetings = '/knockhead'
-subscriptions = '/subscribe'
-scheds = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/today', '/tomorrow')
+greetings = '/knockhead'  # test func
+subscriptions = '/subscribe'  # feature func
+sched_days = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/sun')
+sched_coms = ('/today', '/tomorrow')
+commands_vocabulary = {
+    '/today': 0,
+    '/tomorrow': 1,
+    '/mon': 1,
+    '/tue': 2,
+    '/wed': 3,
+    '/thu': 4,
+    '/fri': 5,
+    '/sat': 6,
+    '/sun': 7
+}
 
 
 def main():
@@ -75,6 +97,11 @@ def main():
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
             greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
+
+            # test, later replace with test_chat_id and remove previous test string
+            greet_bot.send_message(test_my_id, 'Today:\n{}'.format(lessons[now.isoweekday()]))
+            greet_bot.send_message(test_my_id, 'Tomorrow:\n{}'.format(lessons[now.isoweekday() + 1]))
+
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day  # it works
 
@@ -90,6 +117,12 @@ def main():
         # command's reactions
         if last_chat_text.lower() in greetings:
             greet_bot.send_message(last_chat_id, 'NO U, {}'.format(last_chat_name))
+
+        if last_chat_text.lower() in sched_coms:
+            greet_bot.send_message(last_chat_id, lessons[now.isoweekday() + commands_vocabulary[last_chat_text]])
+
+        if last_chat_text.lower() in sched_days:
+            greet_bot.send_message(last_chat_id, lessons[commands_vocabulary[last_chat_text]])
 
         new_offset = last_update_id + 1  # mmm... it works?
 
