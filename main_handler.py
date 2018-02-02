@@ -65,15 +65,16 @@ subscriptions = '/subscribe'  # feature func
 sched_days = ('/mon', '/tue', '/wed', '/thu', '/fri', '/sat', '/sun')
 sched_coms = ('/today', '/tomorrow')
 commands_vocabulary = {
-    '/today': 0,
-    '/tomorrow': 1,
-    '/mon': 1,
-    '/tue': 2,
-    '/wed': 3,
-    '/thu': 4,
-    '/fri': 5,
-    '/sat': 6,
-    '/sun': 7
+    '/today': -1,
+    '/tomorrow': 0,
+
+    '/mon': 0,
+    '/tue': 1,
+    '/wed': 2,
+    '/thu': 3,
+    '/fri': 4,
+    '/sat': 5,
+    '/sun': 6
 }
 
 
@@ -99,8 +100,8 @@ def main():
             greet_bot.send_message(test_chat_id, 'Today is {} day of a week'.format(now.isoweekday()))
 
             # test, later replace with test_chat_id and remove previous test string
-            greet_bot.send_message(test_my_id, 'Today:\n{}'.format(lessons[now.isoweekday()]))
-            greet_bot.send_message(test_my_id, 'Tomorrow:\n{}'.format(lessons[now.isoweekday() + 1]))
+            greet_bot.send_message(test_my_id, 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
+            greet_bot.send_message(test_my_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
 
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day  # it works
@@ -119,7 +120,7 @@ def main():
             greet_bot.send_message(last_chat_id, 'NO U, {}'.format(last_chat_name))
 
         if last_chat_text.lower() in sched_coms:
-            greet_bot.send_message(last_chat_id, lessons[now.isoweekday() + commands_vocabulary[last_chat_text]])
+            greet_bot.send_message(last_chat_id, lessons[(now.isoweekday() + commands_vocabulary[last_chat_text]) % 7])
 
         if last_chat_text.lower() in sched_days:
             greet_bot.send_message(last_chat_id, lessons[commands_vocabulary[last_chat_text]])
