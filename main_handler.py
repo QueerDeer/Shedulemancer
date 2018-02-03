@@ -6,6 +6,8 @@ import datetime
 
 
 # also we are in need of class for processing methods (reminder of schedule, answerer...)
+# also we need moar try-except constructions (not everywhere - where it's really need and makes sense)
+# because somewhere more clever to check the return of methods ('True', etc.)
 
 
 # web
@@ -117,19 +119,19 @@ def main():
 
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
-            try:  # test
+            try:
                 greet_bot.delete_message(test_chat_id, first_alert_message_id)
                 greet_bot.delete_message(test_chat_id, second_alert_message_id)
             except:
                 print('cannot delete my alert')
 
-            first_alert = greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
-            second_alert = greet_bot.send_message(test_chat_id, 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
-            # greet_bot.send_message(test_chat_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
+            # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
+            first_alert = greet_bot.send_message(test_chat_id, 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
+            second_alert = greet_bot.send_message(test_chat_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
 
-            try:  # test
-                first_alert_message_id = first_alert.json()['result']['chat_id']
-                second_alert_message_id = second_alert.json()['result']['chat_id']
+            try:
+                first_alert_message_id = first_alert.json()['result']['message_id']
+                second_alert_message_id = second_alert.json()['result']['message_id']
             except:
                 print('cannot get id from json')
 
