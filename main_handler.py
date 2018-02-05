@@ -21,7 +21,11 @@ class BotHandler:
         params = {'timeout': timeout, 'offset': offset}
 
         resp = requests.get(self.api_url + method, params)
-        result_json = resp.json()['result']
+        try:
+            result_json = resp.json()['result']
+        except:
+            print('not json')
+            result_json = None
 
         return result_json
 
@@ -64,14 +68,16 @@ lessons = [
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 test_chat_id = -1001192271209  # 331's chat_id
-# test_my_id = 363412185  # my test chat (not group, tet-a-tet)
+test_my_id = 363412185  # my test chat (not group, tet-a-tet)
 
 greet_bot = BotHandler(token)
 
 # need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
 greetings = ('/knockhead', '/knockhead@mephi_shed_bot')
 subscriptions = '/subscribe'  # feature func
-sched_days = ('/mon', '/mon@mephi_shed_bot', '/tue', '/tue@mephi_shed_bot', '/wed', '/wed@mephi_shed_bot', '/thu', '/thu@mephi_shed_bot', '/fri', '/fri@mephi_shed_bot', '/sat', '/sat@mephi_shed_bot', '/sun', '/sun@mephi_shed_bot')
+sched_days = ('/mon', '/mon@mephi_shed_bot', '/tue', '/tue@mephi_shed_bot', '/wed', '/wed@mephi_shed_bot', '/thu',
+              '/thu@mephi_shed_bot', '/fri', '/fri@mephi_shed_bot', '/sat', '/sat@mephi_shed_bot', '/sun',
+              '/sun@mephi_shed_bot')
 sched_coms = ('/today', '/today@mephi_shed_bot', '/tomorrow', '/tomorrow@mephi_shed_bot')
 commands_vocabulary = {
     '/today': -1,
@@ -100,6 +106,7 @@ def main():
     new_offset = None
 
     subscribers_hour = 5
+    subscribers_minute = 0
     first_alert_message_id = 0
     second_alert_message_id = 0
 
@@ -113,12 +120,15 @@ def main():
         now = datetime.datetime.now()
         today = now.day
         hour = now.hour
+        minute = now.minute  # temporary solution case of heroku's cycling (official periodical dyno's wipe)
 
         greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
+        if last_update is None:
+            continue  # get_updates got non-json message? or json is empty?
 
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
-        if today == next_day and hour == subscribers_hour:  # our time is +3 hours
+        if today == next_day and hour == subscribers_hour and minute == subscribers_minute:  # our time is +3 hours
             try:
                 greet_bot.delete_message(test_chat_id, first_alert_message_id)
                 greet_bot.delete_message(test_chat_id, second_alert_message_id)
@@ -143,9 +153,21 @@ def main():
 
         # see JSON-style by getUpdates with offline worker on server
         last_update_id = last_update['update_id']
-        last_chat_text = last_update['message']['text']  # sometimes it works wrong? (rare error, group chat, sys_mesg?)
-        last_chat_id = last_update['message']['chat']['id']
-        last_chat_name = last_update['message']['from']['first_name']
+        try:
+            last_chat_text = last_update['message']['text']  # sometimes it works wrong (group chat, no text)?
+        except:
+            print('no text but json, CATCH U')
+            last_chat_text = 'bullshit'  # cause im angry
+        try:
+            last_chat_id = last_update['message']['chat']['id']
+        except:
+            print('no chat field or (hardly) chat id')
+            last_chat_id = 363412185
+        try:
+            last_chat_name = last_update['message']['from']['first_name']
+        except:
+            print('no from field or (hardly?) first_name')
+            last_chat_name = 'cocksucker'  # still angry, dunno what happens when last_chat_text message have no text
 
         # command's reactions
         if last_chat_text.lower() in greetings:
@@ -156,6 +178,9 @@ def main():
 
         if last_chat_text.lower() in sched_days:
             greet_bot.send_message(last_chat_id, lessons[commands_vocabulary[last_chat_text]])
+
+        if last_chat_text.lower() == 'bullshit':
+            greet_bot.send_message(last_chat_id, last_chat_name)
 
         new_offset = last_update_id + 1  # mmm... it works?
 
