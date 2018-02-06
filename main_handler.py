@@ -119,8 +119,6 @@ def main():
 
         greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
-        if last_update is None:
-            continue  # get_updates got non-json message? or json is empty?
 
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
