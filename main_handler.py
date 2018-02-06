@@ -6,9 +6,6 @@ import datetime
 
 
 # also we are in need of class for processing methods (reminder of schedule, answerer...)
-# also we need moar try-except constructions (not everywhere - where it's really need and makes sense)
-# because somewhere more clever to check the return of methods ('True', etc.)
-
 
 # web
 class BotHandler:
@@ -106,7 +103,6 @@ def main():
     new_offset = None
 
     subscribers_hour = 5
-    subscribers_minute = 0
     first_alert_message_id = 0
     second_alert_message_id = 0
 
@@ -120,7 +116,6 @@ def main():
         now = datetime.datetime.now()
         today = now.day
         hour = now.hour
-        minute = now.minute  # temporary solution case of heroku's cycling (official periodical dyno's wipe)
 
         greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
@@ -128,7 +123,7 @@ def main():
             continue  # get_updates got non-json message? or json is empty?
 
         # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
-        if today == next_day and hour == subscribers_hour and minute == subscribers_minute:  # our time is +3 hours
+        if today == next_day and hour == subscribers_hour:  # our time is +3 hours
             try:
                 greet_bot.delete_message(test_chat_id, first_alert_message_id)
                 greet_bot.delete_message(test_chat_id, second_alert_message_id)
@@ -154,10 +149,10 @@ def main():
         # see JSON-style by getUpdates with offline worker on server
         last_update_id = last_update['update_id']
         try:
-            last_chat_text = last_update['message']['text']  # sometimes it works wrong (group chat, no text)?
+            last_chat_text = last_update['message']['text']  # sometimes it works wrong (add request and smth else)
         except:
             print('no text but json, CATCH U')
-            last_chat_text = 'bullshit'  # cause im angry
+            last_chat_text = 'bullshit'
         try:
             last_chat_id = last_update['message']['chat']['id']
         except:
@@ -167,7 +162,7 @@ def main():
             last_chat_name = last_update['message']['from']['first_name']
         except:
             print('no from field or (hardly?) first_name')
-            last_chat_name = 'cocksucker'  # still angry, dunno what happens when last_chat_text message have no text
+            last_chat_name = 'cocksucker'
 
         # command's reactions
         if last_chat_text.lower() in greetings:
