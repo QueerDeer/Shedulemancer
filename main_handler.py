@@ -3,6 +3,8 @@
 
 import requests
 import datetime
+import psycopg2
+import subprocess
 
 
 # also we are in need of class for processing methods (reminder of schedule, answerer...)
@@ -52,6 +54,11 @@ class BotHandler:
 
         return last_update
 
+# connect to postgresql database (from devcenter (documentation) - easier way is vulnerable to credential changes)
+proc = subprocess.Popen('heroku config:get DATABASE_URL -a aqueous-mesa-67117', stdout=subprocess.PIPE, shell=True)
+db_url = proc.stdout.read().decode('utf-8').strip() + '?sslmode=require'
+
+conn = psycopg2.connect(db_url)
 
 # buildup, missing pairs of tasks for list of scheds
 lessons = [
@@ -64,14 +71,14 @@ lessons = [
     'Отдыхаем']
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
-test_chat_id = -1001192271209  # 331's chat_id
+test_chat_id = -1001192271209  # 331's chat_id, pull it from db
 test_my_id = 363412185  # my test chat (not group, tet-a-tet)
 
 greet_bot = BotHandler(token)
 
 # need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
 greetings = ('/knockhead', '/knockhead@mephi_shed_bot')
-subscriptions = '/subscribe'  # feature func
+subscriptions = '/subscribe'  # pull chat_id, default alert_flag and smth else to db in 'if last_chat_text.lower()...'
 sched_days = ('/mon', '/mon@mephi_shed_bot', '/tue', '/tue@mephi_shed_bot', '/wed', '/wed@mephi_shed_bot', '/thu',
               '/thu@mephi_shed_bot', '/fri', '/fri@mephi_shed_bot', '/sat', '/sat@mephi_shed_bot', '/sun',
               '/sun@mephi_shed_bot')
@@ -108,7 +115,7 @@ def main():
 
     # set marker for hardcoded schedule alert
     bot_start_date = datetime.datetime.now()
-    if bot_start_date.hour > subscribers_hour:
+    if bot_start_date.hour > subscribers_hour:  # correct it with checking alert_flag (pull it from db previously)
         bot_start_date += datetime.timedelta(days=1)
     next_day = bot_start_date.day
 
@@ -120,10 +127,10 @@ def main():
         greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
 
-        # hardsched, need add subscribers list (future) and connect it's elements with test_chat_id's field (replace it)
+        # hardsched, need if for db alert_flag (is already pulled)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
             try:
-                greet_bot.delete_message(test_chat_id, first_alert_message_id)
+                greet_bot.delete_message(test_chat_id, first_alert_message_id)  # pull mesg_id-s from db
                 greet_bot.delete_message(test_chat_id, second_alert_message_id)
             except:
                 print('cannot delete my alert')
@@ -134,7 +141,7 @@ def main():
 
             try:
                 first_alert_message_id = first_alert.json()['result']['message_id']
-                second_alert_message_id = second_alert.json()['result']['message_id']
+                second_alert_message_id = second_alert.json()['result']['message_id']  # and then push it to db
             except:
                 print('cannot get id from json')
 
@@ -150,7 +157,7 @@ def main():
             last_chat_text = last_update['message']['text']  # sometimes it works wrong (add request and smth else)
         except:
             print('no text but json, CATCH U')
-            last_chat_text = 'bullshit'
+            last_chat_text = 'another_action'
         try:
             last_chat_id = last_update['message']['chat']['id']
         except:
@@ -160,7 +167,7 @@ def main():
             last_chat_name = last_update['message']['from']['first_name']
         except:
             print('no from field or (hardly?) first_name')
-            last_chat_name = 'cocksucker'
+            last_chat_name = 'unknown_action'
 
         # command's reactions
         if last_chat_text.lower() in greetings:
@@ -172,7 +179,7 @@ def main():
         if last_chat_text.lower() in sched_days:
             greet_bot.send_message(last_chat_id, lessons[commands_vocabulary[last_chat_text]])
 
-        if last_chat_text.lower() == 'bullshit':
+        if last_chat_text.lower() == 'another_action':
             greet_bot.send_message(last_chat_id, last_chat_name)
 
         new_offset = last_update_id + 1  # mmm... it works?
