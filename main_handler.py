@@ -54,17 +54,16 @@ class BotHandler:
 
         return last_update
 
+
 # connect to postgresql database (from devcenter (documentation) - easier way is vulnerable to credential changes)
 proc = subprocess.Popen('heroku config:get DATABASE_URL -a aqueous-mesa-67117', stdout=subprocess.PIPE, shell=True)
 db_url = proc.stdout.read().decode('utf-8').strip() + '?sslmode=require'
-
-conn = psycopg2.connect(db_url)
 
 # buildup, missing pairs of tasks for list of scheds
 lessons = [
     '10:15 — 13:30 К-923\nСтатистические методы обработки информации (доп.главы)\nОвсянникова Н.В.\n\n14:30 — 17:00 Д-304\nЦифровые динамические системы\nКтитров С.В.',
     'Отдыхаем',
-    '10:15 — 12:40 К-923\nЦифровые динамические системы\nКтитров С.В\n\n13:35 — 16:05 К-923\n(четные) Статистические методы обработки информации (доп. главы)\nОвсянникова Н.В.\n(нечетные) Теория игр и исследование операций (доп. главы) Коновалов Р.В., Кулябичев Ю.П.\n\n16:15 — 18:40 (четные) К-822, (нечетные) К-307\nСтандартизация информационных технологий\nСтепанова Е.Б.',
+    '10:15 — 12:40 К-923\nЦифровые динамические системы\nКтитров С.В\n\n13:35 — 16:05 К-923\n(нечетные) Статистические методы обработки информации (доп. главы)\nОвсянникова Н.В.\n(четные) Теория игр и исследование операций (доп. главы) Коновалов Р.В., Кулябичев Ю.П.\n\n16:15 — 18:40 (нечетные) К-822, (четные) К-307\nСтандартизация информационных технологий\nСтепанова Е.Б.',
     '10:15 — 13:30 В-407\nВеб-программирование\nЛеонова Н.М.\n\n14:30 — 17:00 K-822\n(четные) Учебная (научно-исследовательская) практика\n(нечетные) Стандартизация информационных технологий\nСтепанова Е.Б.',
     '08:30 — 10:05 каф.20\nВоенная подготовка\n\n10:15 — 17:00 каф.20\nВоенная подготовка',
     '09:20 — 12:40 Д-312\nТеория игр и исследование операций (доп. главы)\nКоновалов Р.В., Кулябичев Ю.П.\n\n14:30 — 17:50 Д-304\nМатематическое обеспечение систем специального назначения\nПивторацкая С.В.',
@@ -114,10 +113,15 @@ def main():
     second_alert_message_id = 0
 
     # set marker for hardcoded schedule alert
+    conn = psycopg2.connect(db_url)
+    cursor = conn.cursor()
+
     bot_start_date = datetime.datetime.now()
     if bot_start_date.hour > subscribers_hour:  # correct it with checking alert_flag (pull it from db previously)
         bot_start_date += datetime.timedelta(days=1)
     next_day = bot_start_date.day
+
+    conn.close()
 
     while True:
         now = datetime.datetime.now()
@@ -129,9 +133,12 @@ def main():
 
         # hardsched, need if for db alert_flag (is already pulled)
         if today == next_day and hour == subscribers_hour:  # our time is +3 hours
+            conn = psycopg2.connect(db_url)
+            cursor = conn.cursor()
+
             try:
                 greet_bot.delete_message(test_chat_id, first_alert_message_id)  # pull mesg_id-s from db
-                greet_bot.delete_message(test_chat_id, second_alert_message_id)
+                greet_bot.delete_message(test_chat_id, second_alert_message_id)  # pull
             except:
                 print('cannot delete my alert')
 
@@ -140,13 +147,15 @@ def main():
             second_alert = greet_bot.send_message(test_chat_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
 
             try:
-                first_alert_message_id = first_alert.json()['result']['message_id']
-                second_alert_message_id = second_alert.json()['result']['message_id']  # and then push it to db
+                first_alert_message_id = first_alert.json()['result']['message_id']  # and then push it to db
+                second_alert_message_id = second_alert.json()['result']['message_id']  # push
             except:
                 print('cannot get id from json')
 
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
+
+            conn.close()
 
         if not last_update:
             continue
@@ -156,8 +165,8 @@ def main():
         try:
             last_chat_text = last_update['message']['text']  # sometimes it works wrong (add request and smth else)
         except:
-            print('no text but json, CATCH U')
-            last_chat_text = 'another_action'
+            print('no text but json')
+            last_chat_text = 'another_action'  # add, dismiss, sticker, file
         try:
             last_chat_id = last_update['message']['chat']['id']
         except:
@@ -179,8 +188,11 @@ def main():
         if last_chat_text.lower() in sched_days:
             greet_bot.send_message(last_chat_id, lessons[commands_vocabulary[last_chat_text]])
 
-        if last_chat_text.lower() == 'another_action':
-            greet_bot.send_message(last_chat_id, last_chat_name)
+        # add pull to db for if subscribe command
+
+        # for tests
+        # if last_chat_text.lower() == 'another_action':
+        #    greet_bot.send_message(last_chat_id, last_chat_name)
 
         new_offset = last_update_id + 1  # mmm... it works?
 
