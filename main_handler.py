@@ -4,10 +4,11 @@
 import requests
 import datetime
 import psycopg2
-import subprocess
+from urllib import parse
+import os
 
 
-# upgrade process of db connect/reconnect/etc. and add success checking? (make it better)
+# upgrade process of db connect/reconnect/etc. and add success checking? (make it better), remove copy-paste
 # also we are in need of class for scheduling and answering (not in the main body)?
 
 # web, gonna migrate from requests to ?
@@ -59,12 +60,16 @@ class BotHandler:
 # postgres connector; need def: pull, push, update, ...?
 class DbLoader:
     def __init__(self):
-        # connect to postgresql database (from devcenter docs - easier way is vulnerable to credential changes)
-        proc = subprocess.Popen('heroku config:get DATABASE_URL -a aqueous-mesa-67117', stdout=subprocess.PIPE,
-                                shell=True)
-        self.db_url = proc.stdout.read().decode('utf-8').strip() + 'sslmode=require'
+        parse.uses_netloc.append("postgres")
+        self.db_url = parse.urlparse(os.environ["DATABASE_URL"])
 
-        conn = psycopg2.connect(self.db_url)
+        conn = psycopg2.connect(
+            database=self.db_url.path[1:],
+            user=self.db_url.username,
+            password=self.db_url.password,
+            host=self.db_url.hostname,
+            port=self.db_url.port
+        )
         cursor = conn.cursor()
 
         cursor.execute("SELECT sub_chat_id FROM subscribers")
@@ -76,10 +81,17 @@ class DbLoader:
         cursor.execute("SELECT tomorrow_mesg_id FROM subscribers")
         self.second_alert_message_id = cursor.fetchall()
 
+        cursor.close()
         conn.close()
 
     def set_last_messages(self, f_a_m_id, s_a_m_id):
-        conn = psycopg2.connect(self.db_url)
+        conn = psycopg2.connect(
+            database=self.db_url.path[1:],
+            user=self.db_url.username,
+            password=self.db_url.password,
+            host=self.db_url.hostname,
+            port=self.db_url.port
+        )
         cursor = conn.cursor()
 
         cursor.execute("UPDATE subscribers SET today_mesg_id = (%s)", f_a_m_id)
@@ -90,10 +102,17 @@ class DbLoader:
         self.first_alert_message_id = f_a_m_id
         self.second_alert_message_id = s_a_m_id
 
+        cursor.close()
         conn.close()
 
     def reschedule(self, next_day):
-        conn = psycopg2.connect(self.db_url)
+        conn = psycopg2.connect(
+            database=self.db_url.path[1:],
+            user=self.db_url.username,
+            password=self.db_url.password,
+            host=self.db_url.hostname,
+            port=self.db_url.port
+        )
         cursor = conn.cursor()
 
         cursor.execute("UPDATE subscribers SET alert_day = (%s)", next_day)
@@ -101,6 +120,7 @@ class DbLoader:
 
         self.next_day = next_day
 
+        cursor.close()
         conn.close()
 
 
