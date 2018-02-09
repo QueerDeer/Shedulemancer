@@ -7,9 +7,10 @@ import psycopg2
 import subprocess
 
 
-# also we are in need of class for processing methods (reminder of schedule, answerer...)
+# upgrade process of db connect/reconnect/etc. and add success checking? (make it better)
+# also we are in need of class for scheduling and answering (not in the main body)?
 
-# web
+# web, gonna migrate from requests to ?
 class BotHandler:
     def __init__(self, token):
         self.token = token
@@ -55,11 +56,55 @@ class BotHandler:
         return last_update
 
 
-# connect to postgresql database (from devcenter (documentation) - easier way is vulnerable to credential changes)
-proc = subprocess.Popen('heroku config:get DATABASE_URL -a aqueous-mesa-67117', stdout=subprocess.PIPE, shell=True)
-db_url = proc.stdout.read().decode('utf-8').strip() + '?sslmode=require'
+# postgres connector; need def: pull, push, update, ...?
+class DbLoader:
+    def __init__(self):
+        # connect to postgresql database (from devcenter docs - easier way is vulnerable to credential changes)
+        proc = subprocess.Popen('heroku config:get DATABASE_URL -a aqueous-mesa-67117', stdout=subprocess.PIPE,
+                                shell=True)
+        self.db_url = proc.stdout.read().decode('utf-8').strip() + '?sslmode=require'
 
-# buildup, missing pairs of tasks for list of scheds
+        conn = psycopg2.connect(self.db_url)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT sub_chat_id FROM subscribers")
+        self.test_chat_id = cursor.fetchall()
+        cursor.execute("SELECT alert_day FROM subscribers")
+        self.next_day = cursor.fetchall()
+        cursor.execute("SELECT today_mesg_id FROM subscribers")
+        self.first_alert_message_id = cursor.fetchall()
+        cursor.execute("SELECT tomorrow_mesg_id FROM subscribers")
+        self.second_alert_message_id = cursor.fetchall()
+
+        conn.close()
+
+    def set_last_messages(self, f_a_m_id, s_a_m_id):
+        conn = psycopg2.connect(self.db_url)
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE subscribers SET today_mesg_id = (%s)", f_a_m_id)
+        conn.commit()
+        cursor.execute("UPDATE subscribers SET tomorrow_mesg_id = (%s)", s_a_m_id)
+        conn.commit()
+
+        self.first_alert_message_id = f_a_m_id
+        self.second_alert_message_id = s_a_m_id
+
+        conn.close()
+
+    def reschedule(self, next_day):
+        conn = psycopg2.connect(self.db_url)
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE subscribers SET alert_day = (%s)", next_day)
+        conn.commit()
+
+        self.next_day = next_day
+
+        conn.close()
+
+
+# buildup
 lessons = [
     '10:15 — 13:30 К-923\nСтатистические методы обработки информации (доп.главы)\nОвсянникова Н.В.\n\n14:30 — 17:00 Д-304\nЦифровые динамические системы\nКтитров С.В.',
     'Отдыхаем',
@@ -69,12 +114,6 @@ lessons = [
     '09:20 — 12:40 Д-312\nТеория игр и исследование операций (доп. главы)\nКоновалов Р.В., Кулябичев Ю.П.\n\n14:30 — 17:50 Д-304\nМатематическое обеспечение систем специального назначения\nПивторацкая С.В.',
     'Отдыхаем']
 
-token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
-test_chat_id = -1001192271209  # 331's chat_id, pull it from db
-test_my_id = 363412185  # my test chat (not group, tet-a-tet)
-
-greet_bot = BotHandler(token)
-
 # need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
 greetings = ('/knockhead', '/knockhead@mephi_shed_bot')
 subscriptions = '/subscribe'  # pull chat_id, default alert_flag and smth else to db in 'if last_chat_text.lower()...'
@@ -82,6 +121,7 @@ sched_days = ('/mon', '/mon@mephi_shed_bot', '/tue', '/tue@mephi_shed_bot', '/we
               '/thu@mephi_shed_bot', '/fri', '/fri@mephi_shed_bot', '/sat', '/sat@mephi_shed_bot', '/sun',
               '/sun@mephi_shed_bot')
 sched_coms = ('/today', '/today@mephi_shed_bot', '/tomorrow', '/tomorrow@mephi_shed_bot')
+secret_test_bd_com = ('/catchemall')
 commands_vocabulary = {
     '/today': -1,
     '/today@mephi_shed_bot': -1,
@@ -104,24 +144,16 @@ commands_vocabulary = {
     '/sun@mephi_shed_bot': 6
 }
 
+test_my_id = 363412185  # my test chat (not group, tet-a-tet)
+subscribers_hour = 5
+token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
+
+greet_bot = BotHandler(token)
+db_loader = DbLoader()
+
 
 def main():
     new_offset = None
-
-    subscribers_hour = 5
-    first_alert_message_id = 0
-    second_alert_message_id = 0
-
-    # set marker for hardcoded schedule alert
-    conn = psycopg2.connect(db_url)
-    cursor = conn.cursor()
-
-    bot_start_date = datetime.datetime.now()
-    if bot_start_date.hour > subscribers_hour:  # correct it with checking alert_flag (pull it from db previously)
-        bot_start_date += datetime.timedelta(days=1)
-    next_day = bot_start_date.day
-
-    conn.close()
 
     while True:
         now = datetime.datetime.now()
@@ -131,31 +163,32 @@ def main():
         greet_bot.get_updates(new_offset)
         last_update = greet_bot.get_last_update()
 
-        # hardsched, need if for db alert_flag (is already pulled)
-        if today == next_day and hour == subscribers_hour:  # our time is +3 hours
-            conn = psycopg2.connect(db_url)
-            cursor = conn.cursor()
+        # hardsched
+        if today == db_loader.next_day and hour == subscribers_hour:  # our time is +3 hours
 
             try:
-                greet_bot.delete_message(test_chat_id, first_alert_message_id)  # pull mesg_id-s from db
-                greet_bot.delete_message(test_chat_id, second_alert_message_id)  # pull
+                greet_bot.delete_message(db_loader.test_chat_id, db_loader.first_alert_message_id)
+                greet_bot.delete_message(db_loader.test_chat_id, db_loader.second_alert_message_id)
             except:
                 print('cannot delete my alert')
 
             # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
-            first_alert = greet_bot.send_message(test_chat_id, 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
-            second_alert = greet_bot.send_message(test_chat_id, 'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
+            first_alert = greet_bot.send_message(db_loader.test_chat_id,
+                                                 'Today:\n{}'.format(lessons[now.isoweekday() - 1]))
+            second_alert = greet_bot.send_message(db_loader.test_chat_id,
+                                                  'Tomorrow:\n{}'.format(lessons[(now.isoweekday()) % 7]))
 
             try:
-                first_alert_message_id = first_alert.json()['result']['message_id']  # and then push it to db
-                second_alert_message_id = second_alert.json()['result']['message_id']  # push
+                first_alert_message_id = first_alert.json()['result']['message_id']
+                second_alert_message_id = second_alert.json()['result']['message_id']
+
+                db_loader.set_last_messages(first_alert_message_id, second_alert_message_id)
             except:
                 print('cannot get id from json')
 
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
-
-            conn.close()
+            db_loader.reschedule(next_day)
 
         if not last_update:
             continue
@@ -171,7 +204,7 @@ def main():
             last_chat_id = last_update['message']['chat']['id']
         except:
             print('no chat field or (hardly) chat id')
-            last_chat_id = 363412185
+            last_chat_id = test_my_id
         try:
             last_chat_name = last_update['message']['from']['first_name']
         except:
@@ -189,8 +222,15 @@ def main():
             greet_bot.send_message(last_chat_id, lessons[commands_vocabulary[last_chat_text]])
 
         # add pull to db for if subscribe command
+        # if last_chat_text.lower() in subscriptions:
 
         # for tests
+        if last_chat_text.lower() in secret_test_bd_com:
+            greet_bot.send_message(test_my_id, "sub: " + str(db_loader.test_chat_id) + "\nnext alert date: " + str(
+                db_loader.next_day) + "\nlast today: " + str(
+                db_loader.first_alert_message_id) + "\nlast tomorrow: " + str(db_loader.second_alert_message_id))
+
+        # also for tests
         # if last_chat_text.lower() == 'another_action':
         #    greet_bot.send_message(last_chat_id, last_chat_name)
 
