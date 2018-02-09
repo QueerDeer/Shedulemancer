@@ -62,7 +62,7 @@ class DbLoader:
         # connect to postgresql database (from devcenter docs - easier way is vulnerable to credential changes)
         proc = subprocess.Popen('heroku config:get DATABASE_URL -a aqueous-mesa-67117', stdout=subprocess.PIPE,
                                 shell=True)
-        self.db_url = proc.stdout.read().decode('utf-8').strip() + '?sslmode=require'
+        self.db_url = proc.stdout.read().decode('utf-8').strip()
 
         conn = psycopg2.connect(self.db_url)
         cursor = conn.cursor()
