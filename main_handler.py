@@ -8,7 +8,7 @@ from urllib import parse
 import os
 
 
-# upgrade process of db connect/reconnect/etc. and add success checking? (make it better), remove copy-paste
+# upgrade process of db connect/reconnect/etc. and add try-except before commitments (make it better), remove copy-paste
 # also we are in need of class for scheduling and answering (not in the main body)?
 
 # web, gonna migrate from requests to ?
@@ -73,13 +73,13 @@ class DbLoader:
         cursor = conn.cursor()
 
         cursor.execute("SELECT sub_chat_id FROM subscribers")
-        self.test_chat_id = cursor.fetchall()
+        self.test_chat_id = cursor.fetchone()[0]
         cursor.execute("SELECT alert_day FROM subscribers")
-        self.next_day = cursor.fetchall()
+        self.next_day = cursor.fetchone()[0]
         cursor.execute("SELECT today_mesg_id FROM subscribers")
-        self.first_alert_message_id = cursor.fetchall()
+        self.first_alert_message_id = cursor.fetchone()[0]
         cursor.execute("SELECT tomorrow_mesg_id FROM subscribers")
-        self.second_alert_message_id = cursor.fetchall()
+        self.second_alert_message_id = cursor.fetchone()[0]
 
         cursor.close()
         conn.close()
