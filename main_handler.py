@@ -8,7 +8,7 @@ from urllib import parse
 import os
 
 
-# upgrade process of db connect/reconnect/etc. and add try-except before commitments (make it better), remove copy-paste
+# upgrade process of db connect/reconnect/etc. (make it better), remove copy-paste
 # also we are in need of class for scheduling and answering (not in the main body)?
 
 # web, gonna migrate from requests to ?
@@ -26,7 +26,7 @@ class BotHandler:
             result_json = resp.json()['result']
         except:
             print('not json')
-            result_json = None
+            result_json = None  # telegram, wtf?
 
         return result_json
 
@@ -72,7 +72,7 @@ class DbLoader:
         )
         cursor = conn.cursor()
 
-        cursor.execute("SELECT sub_chat_id FROM subscribers")
+        cursor.execute("SELECT sub_chat_id FROM subscribers")  # do we need try-except too?
         self.test_chat_id = cursor.fetchone()[0]
         cursor.execute("SELECT alert_day FROM subscribers")
         self.next_day = cursor.fetchone()[0]
@@ -94,10 +94,18 @@ class DbLoader:
         )
         cursor = conn.cursor()
 
-        cursor.execute("UPDATE subscribers SET today_mesg_id = (%s)", f_a_m_id)
-        conn.commit()
-        cursor.execute("UPDATE subscribers SET tomorrow_mesg_id = (%s)", s_a_m_id)
-        conn.commit()
+        try:
+            cursor.execute("UPDATE subscribers SET today_mesg_id = (%s)", (f_a_m_id, ))
+        except psycopg2.Error as e:
+            print(e.pgerror)
+        else:
+            conn.commit()
+        try:
+            cursor.execute("UPDATE subscribers SET tomorrow_mesg_id = (%s)", (s_a_m_id, ))
+        except psycopg2.Error as e:
+            print(e.pgerror)
+        else:
+            conn.commit()
 
         self.first_alert_message_id = f_a_m_id
         self.second_alert_message_id = s_a_m_id
@@ -115,8 +123,12 @@ class DbLoader:
         )
         cursor = conn.cursor()
 
-        cursor.execute("UPDATE subscribers SET alert_day = (%s)", next_day)
-        conn.commit()
+        try:
+            cursor.execute("UPDATE subscribers SET alert_day = (%s)", (next_day, ))
+        except psycopg2.Error as e:
+            print(e.pgerror)
+        else:
+            conn.commit()
 
         self.next_day = next_day
 
@@ -136,12 +148,12 @@ lessons = [
 
 # need add alternative commands such as /command@bot_name? (for group chat and autocomplete on desktops)
 greetings = ('/knockhead', '/knockhead@mephi_shed_bot')
-subscriptions = '/subscribe'  # pull chat_id, default alert_flag and smth else to db in 'if last_chat_text.lower()...'
+subscriptions = '/subscribe'  # feature
 sched_days = ('/mon', '/mon@mephi_shed_bot', '/tue', '/tue@mephi_shed_bot', '/wed', '/wed@mephi_shed_bot', '/thu',
               '/thu@mephi_shed_bot', '/fri', '/fri@mephi_shed_bot', '/sat', '/sat@mephi_shed_bot', '/sun',
               '/sun@mephi_shed_bot')
 sched_coms = ('/today', '/today@mephi_shed_bot', '/tomorrow', '/tomorrow@mephi_shed_bot')
-secret_test_bd_com = ('/catchemall')
+secret_test_bd_com = ('/catchemall')  # db test
 commands_vocabulary = {
     '/today': -1,
     '/today@mephi_shed_bot': -1,
@@ -201,10 +213,10 @@ def main():
             try:
                 first_alert_message_id = first_alert.json()['result']['message_id']
                 second_alert_message_id = second_alert.json()['result']['message_id']
-
-                db_loader.set_last_messages(first_alert_message_id, second_alert_message_id)
             except:
-                print('cannot get id from json')
+                print('cannot get message_id from json')
+            else:
+                db_loader.set_last_messages(first_alert_message_id, second_alert_message_id)
 
             next_date = now + datetime.timedelta(days=1)
             next_day = next_date.day
@@ -229,7 +241,7 @@ def main():
             last_chat_name = last_update['message']['from']['first_name']
         except:
             print('no from field or (hardly?) first_name')
-            last_chat_name = 'unknown_action'
+            last_chat_name = 'unknown_action'  # other bots, their buttons, etc.?
 
         # command's reactions
         if last_chat_text.lower() in greetings:
