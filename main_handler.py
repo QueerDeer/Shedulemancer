@@ -26,7 +26,7 @@ class BotHandler:
             result_json = resp.json()['result']
         except:
             print('not json')
-            result_json = None  # telegram, wtf?
+            result_json = ''  # telegram, wtf?
 
         return result_json
 
