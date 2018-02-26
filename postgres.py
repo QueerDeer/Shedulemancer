@@ -2,6 +2,7 @@
 import psycopg2
 from urllib import parse
 import os
+import config
 
 parse.uses_netloc.append("postgres")
 db_url = parse.urlparse(os.environ["DATABASE_URL"])
@@ -71,7 +72,7 @@ def get_memes_by_name(name):
     conn.close()
 
     if len(memes) != 0:
-        return memes[0]["file_id"]
+        return memes[0][config.DB_FILE_ID]
     else:
         return None
 
@@ -84,7 +85,7 @@ def get_memes_by_tag(tag):
     marray = []
 
     for m in memes:
-        marray.append(m["file_id"])
+        marray.append(m[config.DB_FILE_ID])
 
     cursor.close()
     conn.close()
@@ -99,7 +100,7 @@ def get_last_memes():
     marray = []
 
     for m in memes:
-        marray.append(m["file_id"])
+        marray.append(m[config.DB_FILE_ID])
 
     cursor.close()
     conn.close()
@@ -143,7 +144,7 @@ def get_user_condition(uid):
     conn.close()
 
     if (len(user) != 0):
-        return user[0]['num_script'], user[0]['step']
+        return user[0][config.DB_NUM_SCRIPT], user[0][config.DB_STEP]
     else:
         return 0, 0
 

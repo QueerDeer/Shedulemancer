@@ -5,18 +5,18 @@ token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 # enumeration of scenarios
 S_ADD_MEMES = 1
 
-# enumeration of steps, while adding memeses
+# enumeration of steps in scenario, while adding memeses
 S_START = 0
 S_ENTER_NAME = 1
 S_ENTER_TAGS = 2
 S_SEND_PIC = 3
 
-# scheduler
-TEST_MY_ID = 363412185  # my test chat (not group, tet-a-tet)
-SUBSCRIBERS_HOUR = 5
+# scheduler's notifications
+N_TEST_MY_ID = 363412185  # my test chat (not group, tet-a-tet)
+N_SUBSCRIBERS_HOUR = 5
 
 # hard useful shit
-LESSONS = [
+N_LESSONS = [
     '10:15 — 13:30 К-923\nСтатистические методы обработки информации (доп.главы)\nОвсянникова Н.В.\n\n14:30 — 17:00 Д-304\nЦифровые динамические системы\nКтитров С.В.',
     'Отдыхаем',
     '10:15 — 12:40 К-923\nЦифровые динамические системы\nКтитров С.В\n\n13:35 — 16:05 К-923\n(нечетные) Статистические методы обработки информации (доп. главы)\nОвсянникова Н.В.\n(четные) Теория игр и исследование операций (доп. главы) Коновалов Р.В., Кулябичев Ю.П.\n\n16:15 — 18:40 (нечетные) К-822, (четные) К-307\nСтандартизация информационных технологий\nСтепанова Е.Б.',
@@ -24,7 +24,7 @@ LESSONS = [
     '08:30 — 10:05 каф.20\nВоенная подготовка\n\n10:15 — 17:00 каф.20\nВоенная подготовка',
     '09:20 — 12:40 Д-312\nТеория игр и исследование операций (доп. главы)\nКоновалов Р.В., Кулябичев Ю.П.\n\n14:30 — 17:50 Д-304\nМатематическое обеспечение систем специального назначения\nПивторацкая С.В.',
     'Отдыхаем']
-CALENDAR_VOCABULARY = {
+N_CALENDAR_VOCABULARY = {
     '/today': -1,
     '/today@mephi_shed_bot': -1,
     '/tomorrow': 0,
@@ -51,3 +51,8 @@ CALENDAR_VOCABULARY = {
 # NEXT_DAY = 0
 # FIRST_ALERT_MESSAGE_ID = 0
 # SECOND_ALERT_MESSAGE_ID = 0
+
+# some DB columns
+DB_FILE_ID = 1
+DB_NUM_SCRIPT = 1
+DB_STEP = 2
