@@ -14,6 +14,8 @@ S_SEND_PIC = 3
 # scheduler
 TEST_MY_ID = 363412185  # my test chat (not group, tet-a-tet)
 SUBSCRIBERS_HOUR = 5
+
+# hard useful shit
 LESSONS = [
     '10:15 — 13:30 К-923\nСтатистические методы обработки информации (доп.главы)\nОвсянникова Н.В.\n\n14:30 — 17:00 Д-304\nЦифровые динамические системы\nКтитров С.В.',
     'Отдыхаем',
@@ -23,17 +25,28 @@ LESSONS = [
     '09:20 — 12:40 Д-312\nТеория игр и исследование операций (доп. главы)\nКоновалов Р.В., Кулябичев Ю.П.\n\n14:30 — 17:50 Д-304\nМатематическое обеспечение систем специального назначения\nПивторацкая С.В.',
     'Отдыхаем']
 CALENDAR_VOCABULARY = {
-    'today': -1,
-    'tomorrow': 0,
+    '/today': -1,
+    '/today@mephi_shed_bot': -1,
+    '/tomorrow': 0,
+    '/tomorrow@mephi_shed_bot': 0,
 
-    'mon': 0,
-    'tue': 1,
-    'wed': 2,
-    'thu': 3,
-    'fri': 4,
-    'sat': 5,
-    'sun': 6,
+    '/mon': 0,
+    '/mon@mephi_shed_bot': 0,
+    '/tue': 1,
+    '/tue@mephi_shed_bot': 1,
+    '/wed': 2,
+    '/wed@mephi_shed_bot': 2,
+    '/thu': 3,
+    '/thu@mephi_shed_bot': 3,
+    '/fri': 4,
+    '/fri@mephi_shed_bot': 4,
+    '/sat': 5,
+    '/sat@mephi_shed_bot': 5,
+    '/sun': 6,
+    '/sun@mephi_shed_bot': 6
 }
+
+# deleting previous notification
 TEST_CHAT_ID = 0
 NEXT_DAY = 0
 FIRST_ALERT_MESSAGE_ID = 0
