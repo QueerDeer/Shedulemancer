@@ -46,8 +46,8 @@ CALENDAR_VOCABULARY = {
     '/sun@mephi_shed_bot': 6
 }
 
-# deleting previous notification
-TEST_CHAT_ID = 0
-NEXT_DAY = 0
-FIRST_ALERT_MESSAGE_ID = 0
-SECOND_ALERT_MESSAGE_ID = 0
+# # deleting previous notification
+# TEST_CHAT_ID = 0
+# NEXT_DAY = 0
+# FIRST_ALERT_MESSAGE_ID = 0
+# SECOND_ALERT_MESSAGE_ID = 0

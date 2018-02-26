@@ -65,7 +65,7 @@ def update_memes_file_id(name, file_id):
 def get_memes_by_name(name):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.memes WHERE name = '{0}'".format(name))  # bad
+    cursor.execute("SELECT * FROM public.memes WHERE name = (%s)", (name,))  #
     memes = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -79,7 +79,7 @@ def get_memes_by_name(name):
 def get_memes_by_tag(tag):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.memes WHERE '{0}' = ANY (tags)".format(tag))  # bad
+    cursor.execute("SELECT * FROM public.memes WHERE (%s) = ANY (tags)", (tag,))  #
     memes = cursor.fetchall()
     marray = []
 
@@ -109,7 +109,7 @@ def get_last_memes():
 def set_user_condition(uid, num_script, step):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.users WHERE uid = '{0}'".format(uid))  # bad
+    cursor.execute("SELECT * FROM public.users WHERE uid = (%s)", (uid,))  #
     users = cursor.fetchall()
 
     if (len(users) != 0):
@@ -123,7 +123,7 @@ def set_user_condition(uid, num_script, step):
 
     else:
         try:
-            cursor.execute("INSERT INTO public.users (uid, num_script, step) VALUES ($1, $2, $3)",
+            cursor.execute("INSERT INTO public.users (uid, num_script, step) VALUES (%s, %s, %s)",
                            (uid, num_script, step,))
         except psycopg2.Error as e:
             print(e.pgerror)
@@ -137,7 +137,7 @@ def set_user_condition(uid, num_script, step):
 def get_user_condition(uid):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.users WHERE uid = '{0}'".format(uid))  # bad
+    cursor.execute("SELECT * FROM public.users WHERE uid = (%s)", (uid,))  #
     user = cursor.fetchall()
     cursor.close()
     conn.close()
