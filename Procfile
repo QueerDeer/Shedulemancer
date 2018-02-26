@@ -1,1 +1,1 @@
-worker: python main_handler.py
+worker: python testbot.py

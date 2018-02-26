@@ -4,6 +4,7 @@ DateTime==4.2
 idna==2.6
 psycopg2==2.7.3.2
 pytz==2017.3
-requests==2.18.4
+requests==2.7.0
+telebot==0.0.3
 urllib3==1.22
 zope.interface==4.4.3
