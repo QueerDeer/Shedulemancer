@@ -2,8 +2,7 @@
 import postgresql
 import os
 
-db = postgresql.open(
-    os.environ["DATABASE_URL"])  # вынести в config.py, разбить на отдельные части
+db = postgresql.open("pq://kubjzlpjmpqjnq:759c39ba3fa542d86d23143e43131d4482dbdd03ec619d661cc7c1325926cb88@ec2-54-83-11-247.compute-1.amazonaws.com:5432/d7q4ua7lsutje2")  # вынести в config.py, разбить на отдельные части
 
 
 def insert_memes(name, file_id=0, tags=""):

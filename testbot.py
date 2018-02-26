@@ -22,10 +22,12 @@ def handle_start_help(message):
 @bot.message_handler(commands=['today', 'tomorrow'], func=lambda message: message.chat.type == "supergroup")
 def handle_calendar_neighbours(message):
     now = datetime.datetime.now()
-    bot.send_message(message.chat.id, config.LESSONS[(now.isoweekday() + config.CALENDAR_VOCABULARY[message.text]) % 7], reply_markup=keyboard)
+    bot.send_message(message.chat.id, config.LESSONS[(now.isoweekday() + config.CALENDAR_VOCABULARY[message.text]) % 7],
+                     reply_markup=keyboard)
 
 
-@bot.message_handler(commands=['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'], func=lambda message: message.chat.type == "supergroup")
+@bot.message_handler(commands=['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+                     func=lambda message: message.chat.type == "supergroup")
 def handle_calendar_days(message):
     bot.send_message(message.chat.id, config.LESSONS[config.CALENDAR_VOCABULARY[message.text]], reply_markup=keyboard)
 
@@ -98,7 +100,8 @@ def user_send_pic(message):
 @bot.message_handler(commands=['today', 'tomorrow'])
 def handle_calendar_neighbours(message):
     now = datetime.datetime.now()
-    bot.send_message(message.chat.id, config.LESSONS[(now.isoweekday() + config.CALENDAR_VOCABULARY[message.text]) % 7], reply_markup=keyboard)
+    bot.send_message(message.chat.id, config.LESSONS[(now.isoweekday() + config.CALENDAR_VOCABULARY[message.text]) % 7],
+                     reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])
