@@ -1,23 +1,65 @@
 # -*- coding: utf-8 -*-
-import postgresql
+import psycopg2
+from urllib import parse
 import os
 
-db = postgresql.open("pq://kubjzlpjmpqjnq:759c39ba3fa542d86d23143e43131d4482dbdd03ec619d661cc7c1325926cb88@ec2-54-83-11-247.compute-1.amazonaws.com:5432/d7q4ua7lsutje2")  # вынести в config.py, разбить на отдельные части
+parse.uses_netloc.append("postgres")
+db_url = parse.urlparse(os.environ["DATABASE_URL"])
 
 
+def connector():
+    conn = psycopg2.connect(
+        database=db_url.path[1:],
+        user=db_url.username,
+        password=db_url.password,
+        host=db_url.hostname,
+        port=db_url.port
+    )
+    cursor = conn.cursor()
+    return cursor, conn
+
+
+# memeses
 def insert_memes(name, file_id=0, tags=""):
-    insert = db.prepare("INSERT INTO public.memes (name, file_id, tags) VALUES ($1, $2, $3)")
-    insert(name, file_id, tags)
+    cursor, conn = connector()
+
+    try:
+        cursor.execute("INSERT INTO public.memes (name, file_id, tags) VALUES (%s, %s, %s)", (name, file_id, tags,))
+    except psycopg2.Error as e:
+        print(e.pgerror)
+    else:
+        conn.commit()
+
+    cursor.close()
+    conn.close()
 
 
 def update_memes_tags(name, tags):
-    update = db.prepare("UPDATE public.memes SET tags = $2 where name = $1")
-    update(name, tags)
+    cursor, conn = connector()
+
+    try:
+        cursor.execute("UPDATE public.memes SET tags = (%s) where name = (%s)", (tags, name,))
+    except psycopg2.Error as e:
+        print(e.pgerror)
+    else:
+        conn.commit()
+
+    cursor.close()
+    conn.close()
 
 
 def update_memes_file_id(name, file_id):
-    update = db.prepare("UPDATE public.memes SET file_id = $2 where name = $1")
-    update(name, file_id)
+    cursor, conn = connector()
+
+    try:
+        cursor.execute("UPDATE public.memes SET file_id = (%s) where name = (%s)", (file_id, name,))
+    except psycopg2.Error as e:
+        print(e.pgerror)
+    else:
+        conn.commit()
+
+    cursor.close()
+    conn.close()
 
 
 def get_memes_by_name(name):
@@ -60,3 +102,56 @@ def get_user_condition(uid):
         return user[0]['num_script'], user[0]['step']
     else:
         return 0, 0
+
+
+# scheduler
+def check_alert():
+    cursor, conn = connector()
+
+    cursor.execute("SELECT sub_chat_id FROM subscribers")
+    test_chat_id = cursor.fetchone()[0]
+    cursor.execute("SELECT alert_day FROM subscribers")
+    next_day = cursor.fetchone()[0]
+    cursor.execute("SELECT today_mesg_id FROM subscribers")
+    first_alert_message_id = cursor.fetchone()[0]
+    cursor.execute("SELECT tomorrow_mesg_id FROM subscribers")
+    second_alert_message_id = cursor.fetchone()[0]
+
+    cursor.close()
+    conn.close()
+
+    return test_chat_id, next_day, first_alert_message_id, second_alert_message_id
+
+
+def set_last_messages(f_a_m_id, s_a_m_id):
+    cursor, conn = connector()
+
+    try:
+        cursor.execute("UPDATE subscribers SET today_mesg_id = (%s)", (f_a_m_id,))
+    except psycopg2.Error as e:
+        print(e.pgerror)
+    else:
+        conn.commit()
+    try:
+        cursor.execute("UPDATE subscribers SET tomorrow_mesg_id = (%s)", (s_a_m_id,))
+    except psycopg2.Error as e:
+        print(e.pgerror)
+    else:
+        conn.commit()
+
+    cursor.close()
+    conn.close()
+
+
+def reschedule(next_day):
+    cursor, conn = connector()
+
+    try:
+        cursor.execute("UPDATE subscribers SET alert_day = (%s)", (next_day,))
+    except psycopg2.Error as e:
+        print(e.pgerror)
+    else:
+        conn.commit()
+
+    cursor.close()
+    conn.close()

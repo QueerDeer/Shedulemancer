@@ -2,10 +2,10 @@
 
 token = "545213183:AAF2vAqvhV_YTgP-LUZrV3vsBkF6iNbNWJA"
 
-# перечисление сценариев
+# enumeration of scenarios
 S_ADD_MEMES = 1
 
-# перечисление шагов, при добавлении мемеса
+# enumeration of steps, while adding memeses
 S_START = 0
 S_ENTER_NAME = 1
 S_ENTER_TAGS = 2

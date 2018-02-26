@@ -1,24 +1,29 @@
 # -*- coding: cp1251 -*-
-import config, postgres
+import config
+import postgres
 import telebot
 from telebot import types
-from postgres import postgresql
 
 import datetime
 
 bot = telebot.TeleBot(config.token)
 
 
-# Обработчик команд '/start' и '/help'.
+# for '/start', '/help'
 @bot.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
     bot.send_message(message.chat.id, "Hi, folks!")
 
 
-# test commands
+# aka handler and db test
+@bot.message_handler(commands=['knockhead'])
+def handle_greet(message):
+    bot.send_message(message.chat.id, 'NO U, {}'.format(message.from_user.first_name))
+    print(postgres.check_alert())
 
 
 # supergroups
+# scheduler
 @bot.message_handler(commands=['today', 'tomorrow'], func=lambda message: message.chat.type == "supergroup")
 def handle_calendar_neighbours(message):
     now = datetime.datetime.now()
@@ -32,6 +37,7 @@ def handle_calendar_days(message):
     bot.send_message(message.chat.id, config.LESSONS[config.CALENDAR_VOCABULARY[message.text]], reply_markup=keyboard)
 
 
+# memeses
 @bot.message_handler(commands=['add_memes'],
                      func=lambda message: message.chat.type == "supergroup" and postgres.get_user_condition(
                          message.from_user.id) == (0, 0))
@@ -40,7 +46,7 @@ def handle_start_add_memes(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Введи имя для мема: ", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Enter meme name: ", reply_markup=keyboard)
 
 
 @bot.message_handler(
@@ -53,7 +59,7 @@ def user_entering_name(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Введи ключевые слова для поиска твоего мема через запятую: ",
+    bot.send_message(message.chat.id, "Enter key words for your meme, separated by commas: ",
                      reply_markup=keyboard)
 
 
@@ -70,7 +76,7 @@ def user_entering_tags(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Отлично, теперь пришли мне картинку твоего мема: ", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Nice, and now send me the picture: ", reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=["photo"],
@@ -83,7 +89,7 @@ def user_send_pic(message):
     keyboard = types.InlineKeyboardMarkup()
     switch_button = types.InlineKeyboardButton(text="Проверить!", switch_inline_query_current_chat=tmp_name)
     keyboard.add(switch_button)
-    bot.send_message(message.chat.id, "Твой мем добавлен в базу!", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "The meme is in ur base killin ur d00dz", reply_markup=keyboard)
 
 
 @bot.message_handler(
@@ -93,10 +99,11 @@ def user_send_pic(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Так, блэд! Тут нет картинки!", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Fuck, you are kidding me - there is no picture!", reply_markup=keyboard)
 
 
-# все для обычных диалогов
+# tet-a-tet chats
+# scheduler
 @bot.message_handler(commands=['today', 'tomorrow'])
 def handle_calendar_neighbours(message):
     now = datetime.datetime.now()
@@ -109,6 +116,7 @@ def handle_calendar_days(message):
     bot.send_message(message.chat.id, config.LESSONS[config.CALENDAR_VOCABULARY[message.text]], reply_markup=keyboard)
 
 
+# memeses
 @bot.message_handler(commands=['add_memes'],
                      func=lambda message: postgres.get_user_condition(message.chat.id) == (0, 0))
 def handle_start_add_memes(message):
@@ -116,7 +124,7 @@ def handle_start_add_memes(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Введи имя для мема: ", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Enter meme name: ", reply_markup=keyboard)
 
 
 @bot.message_handler(
@@ -128,7 +136,7 @@ def user_entering_name(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Введи ключевые слова для поиска твоего мема через запятую: ",
+    bot.send_message(message.chat.id, "Enter key words for your meme, separated by commas: ",
                      reply_markup=keyboard)
 
 
@@ -144,7 +152,7 @@ def user_entering_tags(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Отлично, теперь пришли мне картинку твоего мема: ", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Nice, and now send me the picture: ", reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=["photo"], func=lambda message: postgres.get_user_condition(message.chat.id) == (
@@ -156,7 +164,7 @@ def user_send_pic(message):
     keyboard = types.InlineKeyboardMarkup()
     switch_button = types.InlineKeyboardButton(text="Проверить!", switch_inline_query_current_chat=tmp_name)
     keyboard.add(switch_button)
-    bot.send_message(message.chat.id, "Твой мем добавлен в базу!", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "The meme is in ur base killin ur d00dz", reply_markup=keyboard)
 
 
 @bot.message_handler(
@@ -165,7 +173,7 @@ def user_send_pic(message):
     keyboard = types.InlineKeyboardMarkup()
     callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
     keyboard.add(callback_button)
-    bot.send_message(message.chat.id, "Так, блэд! Тут нет картинки!", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Fuck, you are kidding me - there is no picture!", reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "reset")
@@ -175,12 +183,12 @@ def reset_user_condition(call):
     else:
         postgres.set_user_condition(call.message.chat.id, 0, 0)
     bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
-    bot.send_message(call.message.chat.id, "Добавление мема отменено.")
+    bot.send_message(call.message.chat.id, "Adding meme rejected.")
 
 
 @bot.inline_handler(func=lambda query: len(query.query) is 0)
 def empty_query(query):
-    hint = "Введите имя мема или тег для поиска."
+    hint = "Enter name or tag for search meme: "
     memes = postgres.get_last_memes()
     i = 0
     try:
