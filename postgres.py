@@ -63,7 +63,13 @@ def update_memes_file_id(name, file_id):
 
 
 def get_memes_by_name(name):
-    memes = db.query("SELECT * FROM public.memes WHERE name = '{0}'".format(name))
+    cursor, conn = connector()
+
+    cursor.execute("SELECT * FROM public.memes WHERE name = '{0}'".format(name))  # bad
+    memes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
     if len(memes) != 0:
         return memes[0]["file_id"]
     else:
@@ -71,33 +77,71 @@ def get_memes_by_name(name):
 
 
 def get_memes_by_tag(tag):
-    memes = db.query("SELECT * FROM public.memes WHERE '{0}' = ANY (tags)".format(tag))
+    cursor, conn = connector()
+
+    cursor.execute("SELECT * FROM public.memes WHERE '{0}' = ANY (tags)".format(tag))  # bad
+    memes = cursor.fetchall()
     marray = []
+
     for m in memes:
         marray.append(m["file_id"])
+
+    cursor.close()
+    conn.close()
     return marray
 
 
 def get_last_memes():
-    memes = db.query("SELECT * FROM public.memes ORDER BY number DESC LIMIT 6")
+    cursor, conn = connector()
+
+    cursor.execute("SELECT * FROM public.memes ORDER BY number DESC LIMIT 6")
+    memes = cursor.fetchall()
     marray = []
+
     for m in memes:
         marray.append(m["file_id"])
+
+    cursor.close()
+    conn.close()
     return marray
 
 
 def set_user_condition(uid, num_script, step):
-    users = db.query("SELECT * FROM public.users WHERE uid = '{0}'".format(uid))
+    cursor, conn = connector()
+
+    cursor.execute("SELECT * FROM public.users WHERE uid = '{0}'".format(uid))  # bad
+    users = cursor.fetchall()
+
     if (len(users) != 0):
-        update = db.prepare("UPDATE public.users SET (num_script, step) = ($2, $3) where uid = $1")
-        update(uid, num_script, step)
+        try:
+            cursor.execute("UPDATE public.users SET (num_script, step) = (%s, %s) where uid = %s",
+                           (num_script, step, uid,))
+        except psycopg2.Error as e:
+            print(e.pgerror)
+        else:
+            conn.commit()
+
     else:
-        insert = db.prepare("INSERT INTO public.users (uid, num_script, step) VALUES ($1, $2, $3)")
-        insert(uid, num_script, step)
+        try:
+            cursor.execute("INSERT INTO public.users (uid, num_script, step) VALUES ($1, $2, $3)",
+                           (uid, num_script, step,))
+        except psycopg2.Error as e:
+            print(e.pgerror)
+        else:
+            conn.commit()
+
+    cursor.close()
+    conn.close()
 
 
 def get_user_condition(uid):
-    user = db.query("SELECT * FROM public.users WHERE uid = '{0}'".format(uid))
+    cursor, conn = connector()
+
+    cursor.execute("SELECT * FROM public.users WHERE uid = '{0}'".format(uid))  # bad
+    user = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
     if (len(user) != 0):
         return user[0]['num_script'], user[0]['step']
     else:
