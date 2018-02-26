@@ -3,7 +3,7 @@ chardet==3.0.4
 DateTime==4.2
 idna==2.6
 psycopg2==2.7.3.2
-pyTelegramBotAPI==3.5.2
+pyTelegramBotAPI==3.2.0
 pytz==2017.3
 requests==2.7.0
 six==1.11.0
