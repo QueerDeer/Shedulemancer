@@ -44,10 +44,10 @@ def daily_mail():
 
             # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
             first_alert = bot.send_message(config.N_TEST_MY_ID,
-                                           'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
+                                           'Today:\n{}'.format(config.N_LESSONS[now.isoweekday() - 1]))
             second_alert = bot.send_message(config.N_TEST_MY_ID,
                                             'Tomorrow:\n{}'.format(
-                                                config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
+                                                config.N_LESSONS[(now.isoweekday()) % 7]))
 
             try:
                 first_alert_message_id = first_alert.json()['result']['message_id']
