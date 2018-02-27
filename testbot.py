@@ -21,47 +21,42 @@ def handle_start_help(message):
 @bot.message_handler(commands=['knockhead'])
 def handle_greet(message):
     bot.send_message(message.chat.id, 'NO U, {}'.format(message.from_user.first_name))
-    bot.send_message(config.N_TEST_MY_ID,
-                     (config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID,
-                      config.N_SECOND_ALERT_MESSAGE_ID))
+    bot.send_message(config.N_TEST_MY_ID, ''.join[config.N_TEST_CHAT_ID, config.N_NEXT_DAY,
+                                                  config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID])
 
 
-@async()
-def daily_mail():
-    while True:
-        now = datetime.datetime.now()
-        today = now.day
-        hour = now.hour
-        print('fuck')
-
-        #if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
-        if True:
-
-            # try:
-            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
-            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
-            # except:
-            #     print('cannot delete my alert')
-
-            # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
-            first_alert = bot.send_message(config.N_TEST_MY_ID,
-                                                 'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
-            second_alert = bot.send_message(config.N_TEST_MY_ID,
-                                                  'Tomorrow:\n{}'.format(config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
-
-            try:
-                first_alert_message_id = first_alert.json()['result']['message_id']
-                second_alert_message_id = second_alert.json()['result']['message_id']
-            except:
-                print('cannot get message_id from json')
-            else:
-                postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
-
-            # next_date = now + datetime.timedelta(days=1)
-            # next_day = next_date.day
-            # postgres.reschedule(next_day)
-
-daily_mail()  # async_scheduler
+# @async()
+# def daily_mail():
+#     while True:
+#         now = datetime.datetime.now()
+#         today = now.day
+#         hour = now.hour
+#
+#         if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
+#
+#             try:
+#                 bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
+#                 bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
+#             except:
+#                 print('cannot delete my alert')
+#
+#             # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
+#             first_alert = bot.send_message(config.N_TEST_CHAT_ID,
+#                                                  'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
+#             second_alert = bot.send_message(config.N_TEST_CHAT_ID,
+#                                                   'Tomorrow:\n{}'.format(config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
+#
+#             try:
+#                 first_alert_message_id = first_alert.json()['result']['message_id']
+#                 second_alert_message_id = second_alert.json()['result']['message_id']
+#             except:
+#                 print('cannot get message_id from json')
+#             else:
+#                 postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
+#
+#             next_date = now + datetime.timedelta(days=1)
+#             next_day = next_date.day
+#             postgres.reschedule(next_day)
 
 
 # supergroups
@@ -274,4 +269,40 @@ if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
 
+    # daily_mail()  # async_scheduler
+
     bot.polling(none_stop=True)  # message_handler
+
+    while True:
+        now = datetime.datetime.now()
+        today = now.day
+        hour = now.hour
+        print('fuck')
+
+        #if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
+        if True:
+
+            # try:
+            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
+            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
+            # except:
+            #     print('cannot delete my alert')
+
+            # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
+            first_alert = bot.send_message(config.N_TEST_MY_ID,
+                                                 'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
+            second_alert = bot.send_message(config.N_TEST_MY_ID,
+                                                  'Tomorrow:\n{}'.format(config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
+
+            try:
+                first_alert_message_id = first_alert.json()['result']['message_id']
+                second_alert_message_id = second_alert.json()['result']['message_id']
+            except:
+                print('cannot get message_id from json')
+            else:
+                # postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
+                print (first_alert_message_id, second_alert_message_id)
+
+            # next_date = now + datetime.timedelta(days=1)
+            # next_day = next_date.day
+            # postgres.reschedule(next_day)
