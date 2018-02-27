@@ -36,11 +36,11 @@ def daily_mail():
         #if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
         if True:
 
-            try:
-                bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
-                bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
-            except:
-                print('cannot delete my alert')
+            # try:
+            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
+            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
+            # except:
+            #     print('cannot delete my alert')
 
             # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
             first_alert = bot.send_message(config.N_TEST_CHAT_ID,
