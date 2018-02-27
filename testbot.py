@@ -8,6 +8,8 @@ from telebot.util import async
 
 import datetime
 
+from multiprocessing import Pool
+
 bot = telebot.AsyncTeleBot(config.token)
 
 
@@ -25,6 +27,8 @@ def handle_greet(message):
                      str(config.N_FIRST_ALERT_MESSAGE_ID) + str(config.N_SECOND_ALERT_MESSAGE_ID))
 
 
+def test_func():
+    print('fuck')
 # @async()
 # def daily_mail():
 #     while True:
@@ -275,7 +279,7 @@ if __name__ == '__main__':
 
     # daily_mail()  # async_scheduler
 
-    bot.polling(none_stop=True)  # message_handler
+    p = Pool(5)
+    p.map(lambda f: f(), [bot.polling(none_stop=True), test_func()])
 
-    while True:
-        print('fuck')
+    # bot.polling(none_stop=True)  # message_handler
