@@ -9,7 +9,7 @@ import datetime
 import threading
 import time
 
-bot = telebot.AsyncTeleBot(config.token)
+bot = telebot.TeleBot(config.token)
 
 
 # for '/start', '/help'
