@@ -271,6 +271,6 @@ if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
 
-    daily_mail()  # async_scheduler
+    daily_mail(self)  # async_scheduler
 
     bot.polling(none_stop=True)  # message_handler
