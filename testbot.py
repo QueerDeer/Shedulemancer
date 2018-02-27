@@ -8,7 +8,7 @@ from telebot.util import async
 
 import datetime
 
-bot = telebot.TeleBot(config.token)
+bot = telebot.AsyncTeleBot(config.token)
 
 
 # for '/start', '/help'
