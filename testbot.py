@@ -274,12 +274,10 @@ if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
 
-    poll_thread = threading.Thread(target=bot.polling(), args=())
-    motify_thread = threading.Thread(target=daily_mail(), args=())
+    poll_thread = threading.Thread(target=bot.polling, args=())
+    motify_thread = threading.Thread(target=daily_mail, args=())
 
     poll_thread.start()
     motify_thread.start()
-    poll_thread.join()
-    motify_thread.join()
 
     # bot.polling(none_stop=True)  # message_handler
