@@ -49,14 +49,14 @@ def daily_mail():
                                             'Tomorrow:\n{}'.format(
                                                 config.N_LESSONS[(now.isoweekday()) % 7]))
 
-            try:
+            # try:
                 first_alert_message_id = first_alert.json()['result']['message_id']
                 second_alert_message_id = second_alert.json()['result']['message_id']
-            except:
-                print('cannot get message_id from json')
-            else:
-                # postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
-                print(first_alert_message_id, second_alert_message_id)
+            # except:
+            #     print('cannot get message_id from json')
+            # else:
+            #     # postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
+            #     print(first_alert_message_id, second_alert_message_id)
 
             # next_date = now + datetime.timedelta(days=1)
             # next_day = next_date.day
@@ -280,4 +280,3 @@ if __name__ == '__main__':
     poll_thread.start()
     motify_thread.start()
 
-    # bot.polling(none_stop=True)  # message_handler
