@@ -21,8 +21,8 @@ def handle_start_help(message):
 @bot.message_handler(commands=['knockhead'])
 def handle_greet(message):
     bot.send_message(message.chat.id, 'NO U, {}'.format(message.from_user.first_name))
-    bot.send_message(config.N_TEST_MY_ID, ''.join[config.N_TEST_CHAT_ID, config.N_NEXT_DAY,
-                                                  config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID])
+    bot.send_message(config.N_TEST_MY_ID, str(config.N_TEST_CHAT_ID) + str(config.N_NEXT_DAY) +
+                     str(config.N_FIRST_ALERT_MESSAGE_ID) + str(config.N_SECOND_ALERT_MESSAGE_ID))
 
 
 # @async()
@@ -280,7 +280,7 @@ if __name__ == '__main__':
         print('fuck')
 
         #if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
-        if True:
+        if 0 == 0:
 
             # try:
             #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
