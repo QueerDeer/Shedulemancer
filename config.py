@@ -11,6 +11,12 @@ S_ENTER_NAME = 1
 S_ENTER_TAGS = 2
 S_SEND_PIC = 3
 
+# some memes' and users' DB columns
+DB_FILE_ID = 1
+DB_NUM_SCRIPT = 1
+DB_STEP = 2
+
+
 # scheduler's notifications
 N_TEST_MY_ID = 363412185  # my test chat (not group, tet-a-tet)
 N_SUBSCRIBERS_HOUR = 5
@@ -46,13 +52,8 @@ N_CALENDAR_VOCABULARY = {
     '/sun@mephi_shed_bot': 6
 }
 
-# # deleting previous notification
-# TEST_CHAT_ID = 0
-# NEXT_DAY = 0
-# FIRST_ALERT_MESSAGE_ID = 0
-# SECOND_ALERT_MESSAGE_ID = 0
-
-# some DB columns
-DB_FILE_ID = 1
-DB_NUM_SCRIPT = 1
-DB_STEP = 2
+# deleting previous notification by checking subscriber tables' columns
+N_TEST_CHAT_ID = 0
+N_NEXT_DAY = 0
+N_FIRST_ALERT_MESSAGE_ID = 0
+N_SECOND_ALERT_MESSAGE_ID = 0

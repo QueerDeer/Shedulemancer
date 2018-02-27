@@ -66,7 +66,7 @@ def update_memes_file_id(name, file_id):
 def get_memes_by_name(name):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.memes WHERE name = (%s)", (name,))  #
+    cursor.execute("SELECT * FROM public.memes WHERE name = (%s)", (name,))
     memes = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -80,7 +80,7 @@ def get_memes_by_name(name):
 def get_memes_by_tag(tag):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.memes WHERE (%s) = ANY (tags)", (tag,))  #
+    cursor.execute("SELECT * FROM public.memes WHERE (%s) = ANY (tags)", (tag,))
     memes = cursor.fetchall()
     marray = []
 
@@ -138,7 +138,7 @@ def set_user_condition(uid, num_script, step):
 def get_user_condition(uid):
     cursor, conn = connector()
 
-    cursor.execute("SELECT * FROM public.users WHERE uid = (%s)", (uid,))  #
+    cursor.execute("SELECT * FROM public.users WHERE uid = (%s)", (uid,))
     user = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -184,6 +184,8 @@ def set_last_messages(f_a_m_id, s_a_m_id):
     else:
         conn.commit()
 
+    config.N_FIRST_ALERT_MESSAGE_ID = f_a_m_id
+    config.N_SECOND_ALERT_MESSAGE_ID = s_a_m_id
     cursor.close()
     conn.close()
 
@@ -198,5 +200,6 @@ def reschedule(next_day):
     else:
         conn.commit()
 
+    config.N_NEXT_DAY = next_day
     cursor.close()
     conn.close()
