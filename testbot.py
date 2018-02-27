@@ -275,6 +275,5 @@ if __name__ == '__main__':
         postgres.check_alert()
 
     threading.Thread(target=daily_mail(), args=()).start()
-    threading.Thread(target=bot.polling(), args=()).start()
 
-    # bot.polling(none_stop=True)  # message_handler
+    bot.polling(none_stop=True)  # message_handler
