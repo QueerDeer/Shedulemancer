@@ -27,7 +27,8 @@ def handle_greet(message):
 
 
 def test_func():
-    print('fuck')
+    while True:
+        print('fuck')
 # @async()
 # def daily_mail():
 #     while True:
