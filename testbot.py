@@ -4,10 +4,10 @@ import postgres
 
 import telebot
 from telebot import types
-from telebot.util import async
 
 import datetime
 import threading
+import time
 
 bot = telebot.AsyncTeleBot(config.token)
 
@@ -26,45 +26,42 @@ def handle_greet(message):
                      str(config.N_FIRST_ALERT_MESSAGE_ID) + str(config.N_SECOND_ALERT_MESSAGE_ID))
 
 
-def test_func():
+def daily_mail():
     while True:
+        now = datetime.datetime.now()
+        today = now.day
+        hour = now.hour
         print('fuck')
-# @async()
-# def daily_mail():
-#     while True:
-#         now = datetime.datetime.now()
-#         today = now.day
-#         hour = now.hour
-#         print('fuck')
-#
-#         # if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
-#         if 0 == 0:
-#
-#             # try:
-#             #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
-#             #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
-#             # except:
-#             #     print('cannot delete my alert')
-#
-#             # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
-#             first_alert = bot.send_message(config.N_TEST_MY_ID,
-#                                            'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
-#             second_alert = bot.send_message(config.N_TEST_MY_ID,
-#                                             'Tomorrow:\n{}'.format(
-#                                                 config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
-#
-#             try:
-#                 first_alert_message_id = first_alert.json()['result']['message_id']
-#                 second_alert_message_id = second_alert.json()['result']['message_id']
-#             except:
-#                 print('cannot get message_id from json')
-#             else:
-#                 # postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
-#                 print(first_alert_message_id, second_alert_message_id)
-#
-#             # next_date = now + datetime.timedelta(days=1)
-#             # next_day = next_date.day
-#             # postgres.reschedule(next_day)
+
+        # if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
+        if 0 == 0:
+
+            # try:
+            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
+            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
+            # except:
+            #     print('cannot delete my alert')
+
+            # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
+            first_alert = bot.send_message(config.N_TEST_MY_ID,
+                                           'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
+            second_alert = bot.send_message(config.N_TEST_MY_ID,
+                                            'Tomorrow:\n{}'.format(
+                                                config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
+
+            try:
+                first_alert_message_id = first_alert.json()['result']['message_id']
+                second_alert_message_id = second_alert.json()['result']['message_id']
+            except:
+                print('cannot get message_id from json')
+            else:
+                # postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
+                print(first_alert_message_id, second_alert_message_id)
+
+            # next_date = now + datetime.timedelta(days=1)
+            # next_day = next_date.day
+            # postgres.reschedule(next_day)
+            time.sleep(10)
 
 
 # supergroups
@@ -277,9 +274,7 @@ if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
 
-    # daily_mail()  # async_scheduler
-
-    threading.Thread(target=test_func(), args=()).start()
+    threading.Thread(target=daily_mail(), args=()).start()
     threading.Thread(target=bot.polling(), args=()).start()
 
     # bot.polling(none_stop=True)  # message_handler
