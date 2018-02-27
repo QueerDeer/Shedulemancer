@@ -60,6 +60,8 @@ def daily_mail():
             # next_day = next_date.day
             # postgres.reschedule(next_day)
 
+daily_mail()  # async_scheduler
+
 
 # supergroups
 # scheduler
@@ -270,7 +272,5 @@ def inline_mode(query):
 if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
-
-    daily_mail()  # async_scheduler
 
     bot.polling(none_stop=True)  # message_handler
