@@ -26,8 +26,8 @@ def handle_greet(message):
                       config.N_SECOND_ALERT_MESSAGE_ID))
 
 
-@async
-def daily_mail(self):
+@async()
+def daily_mail():
     while True:
         now = datetime.datetime.now()
         today = now.day
@@ -271,6 +271,6 @@ if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
 
-    daily_mail(self)  # async_scheduler
+    daily_mail()  # async_scheduler
 
     bot.polling(none_stop=True)  # message_handler
