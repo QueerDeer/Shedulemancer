@@ -7,8 +7,7 @@ from telebot import types
 from telebot.util import async
 
 import datetime
-
-from multiprocessing import Pool
+import threading
 
 bot = telebot.AsyncTeleBot(config.token)
 
@@ -279,7 +278,7 @@ if __name__ == '__main__':
 
     # daily_mail()  # async_scheduler
 
-    p = Pool(5)
-    p.map(lambda f: f(), [bot.polling(none_stop=True), test_func()])
+    threading.Thread(target=test_func(), args=()).start()
+    threading.Thread(target=bot.polling(), args=()).start()
 
     # bot.polling(none_stop=True)  # message_handler
