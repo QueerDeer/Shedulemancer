@@ -27,7 +27,7 @@ def handle_greet(message):
 
 
 @async
-def daily_mail():
+def daily_mail(self):
     while True:
         now = datetime.datetime.now()
         today = now.day
