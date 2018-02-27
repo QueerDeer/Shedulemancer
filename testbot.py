@@ -15,49 +15,47 @@ bot = telebot.TeleBot(config.token)
 # for '/start', '/help'
 @bot.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
-    bot.send_message(message.chat.id, "Hi, folks!")
+    bot.send_message(message.chat.id, "Hi, folks! I'm both inline and listed. At your service.")
 
 
 # for tests
 @bot.message_handler(commands=['knockhead'])
 def handle_greet(message):
     bot.send_message(message.chat.id, 'NO U, {}'.format(message.from_user.first_name))
-    bot.send_message(config.N_TEST_MY_ID, str(config.N_TEST_CHAT_ID) + str(config.N_NEXT_DAY) +
-                     str(config.N_FIRST_ALERT_MESSAGE_ID) + str(config.N_SECOND_ALERT_MESSAGE_ID))
+    bot.send_message(config.N_TEST_MY_ID, str(config.N_TEST_CHAT_ID) + ' ' + str(config.N_NEXT_DAY) + ' ' +
+                     str(config.N_FIRST_ALERT_MESSAGE_ID) + ' ' + str(config.N_SECOND_ALERT_MESSAGE_ID))
 
 
+# core reminder
 def daily_mail():
     while True:
         now = datetime.datetime.now()
         today = now.day
         hour = now.hour
-        print('fuck')
 
-        # if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
-        if 0 == 0:
+        if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:
 
-            # try:
-            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
-            #     bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
-            # except:
-            #     print('cannot delete my alert')
+            try:
+                bot.delete_message(config.N_TEST_CHAT_ID, config.N_FIRST_ALERT_MESSAGE_ID)
+                bot.delete_message(config.N_TEST_CHAT_ID, config.N_SECOND_ALERT_MESSAGE_ID)
+            except:
+                print('cannot delete my alert')
 
-            # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
-            first_alert = bot.send_message(config.N_TEST_MY_ID,
+            first_alert = bot.send_message(config.N_TEST_CHAT_ID,
                                            'Today:\n{}'.format(config.N_LESSONS[now.isoweekday() - 1]))
-            second_alert = bot.send_message(config.N_TEST_MY_ID,
+            second_alert = bot.send_message(config.N_TEST_CHAT_ID,
                                             'Tomorrow:\n{}'.format(
                                                 config.N_LESSONS[(now.isoweekday()) % 7]))
 
             first_alert_message_id = first_alert.message_id
             second_alert_message_id = second_alert.message_id
-            # postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
-            print(first_alert_message_id, second_alert_message_id)
+            postgres.set_last_messages(first_alert_message_id, second_alert_message_id)
 
-            # next_date = now + datetime.timedelta(days=1)
-            # next_day = next_date.day
-            # postgres.reschedule(next_day)
-            time.sleep(10)
+            next_date = now + datetime.timedelta(days=1)
+            next_day = next_date.day
+            postgres.reschedule(next_day)
+
+        time.sleep(1800)
 
 
 # supergroups
@@ -82,7 +80,7 @@ def handle_calendar_days(message):
 def handle_start_add_memes(message):
     postgres.set_user_condition(message.from_user.id, config.S_ADD_MEMES, config.S_ENTER_NAME)
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Enter meme name: ", reply_markup=keyboard)
 
@@ -95,7 +93,7 @@ def user_entering_name(message):
     global tmp_name
     tmp_name = message.text
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Enter key words for your meme, separated by commas: ", reply_markup=keyboard)
 
@@ -112,7 +110,7 @@ def user_entering_tags(message):
 
     postgres.set_user_condition(message.from_user.id, config.S_ADD_MEMES, config.S_SEND_PIC)
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Nice, and now send me the picture: ", reply_markup=keyboard)
 
@@ -125,7 +123,7 @@ def user_send_pic(message):
     postgres.set_user_condition(message.from_user.id, 0, 0)
     postgres.insert_memes(tmp_name, tmp_file_id, tmp_tags)
     keyboard = types.InlineKeyboardMarkup()
-    switch_button = types.InlineKeyboardButton(text="Проверить!", switch_inline_query_current_chat=tmp_name)
+    switch_button = types.InlineKeyboardButton(text="Show on!", switch_inline_query_current_chat=tmp_name)
     keyboard.add(switch_button)
     bot.send_message(message.chat.id, "The meme is in ur base killin ur d00dz", reply_markup=keyboard)
 
@@ -135,7 +133,7 @@ def user_send_pic(message):
                          (config.S_ADD_MEMES, config.S_SEND_PIC))
 def user_send_pic(message):
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Fuck, you are kidding me - there is no picture!", reply_markup=keyboard)
 
@@ -160,7 +158,7 @@ def handle_calendar_days(message):
 def handle_start_add_memes(message):
     postgres.set_user_condition(message.chat.id, config.S_ADD_MEMES, config.S_ENTER_NAME)
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Enter meme name: ", reply_markup=keyboard)
 
@@ -172,7 +170,7 @@ def user_entering_name(message):
     global tmp_name
     tmp_name = message.text
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Enter key words for your meme, separated by commas: ", reply_markup=keyboard)
 
@@ -188,7 +186,7 @@ def user_entering_tags(message):
 
     postgres.set_user_condition(message.chat.id, config.S_ADD_MEMES, config.S_SEND_PIC)
     keyboard = types.InlineKeyboardMarkup()
-    callback_button = types.InlineKeyboardButton(text="Отменить", callback_data="reset")
+    callback_button = types.InlineKeyboardButton(text="Reject", callback_data="reset")
     keyboard.add(callback_button)
     bot.send_message(message.chat.id, "Nice, and now send me the picture: ", reply_markup=keyboard)
 
@@ -200,7 +198,7 @@ def user_send_pic(message):
     postgres.set_user_condition(message.chat.id, 0, 0)
     postgres.insert_memes(tmp_name, tmp_file_id, tmp_tags)
     keyboard = types.InlineKeyboardMarkup()
-    switch_button = types.InlineKeyboardButton(text="Проверить!", switch_inline_query_current_chat=tmp_name)
+    switch_button = types.InlineKeyboardButton(text="Show on!", switch_inline_query_current_chat=tmp_name)
     keyboard.add(switch_button)
     bot.send_message(message.chat.id, "The meme is in ur base killin ur d00dz", reply_markup=keyboard)
 
@@ -234,10 +232,7 @@ def empty_query(query):
     try:
         result = []
         for mem in memes:
-            result.append(types.InlineQueryResultCachedPhoto(
-                id=i,
-                description=hint,
-                photo_file_id=mem))
+            result.append(types.InlineQueryResultCachedPhoto(id=i, description=hint, photo_file_id=mem))
             i += 1
         bot.answer_inline_query(query.id, result, cache_time=10)
 
@@ -256,9 +251,7 @@ def inline_mode(query):
         i = 0
         result = []
         for mem in memes:
-            result.append(types.InlineQueryResultCachedPhoto(
-                id=i,
-                photo_file_id=mem))
+            result.append(types.InlineQueryResultCachedPhoto(id=i, photo_file_id=mem))
             i += 1
         bot.answer_inline_query(query.id, result, cache_time=10)
 
@@ -270,9 +263,9 @@ if __name__ == '__main__':
     config.N_TEST_CHAT_ID, config.N_NEXT_DAY, config.N_FIRST_ALERT_MESSAGE_ID, config.N_SECOND_ALERT_MESSAGE_ID =\
         postgres.check_alert()
 
-    poll_thread = threading.Thread(target=bot.polling, args=())
-    motify_thread = threading.Thread(target=daily_mail, args=())
+    poll_thread = threading.Thread(target=bot.polling, args=(), kwargs={'none_stop': True, })
+    notify_thread = threading.Thread(target=daily_mail, args=())
 
     poll_thread.start()
-    motify_thread.start()
+    notify_thread.start()
 
