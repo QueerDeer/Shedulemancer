@@ -43,9 +43,9 @@ def daily_mail():
             #     print('cannot delete my alert')
 
             # greet_bot.send_message(test_chat_id, 'Phew, today is {} day of a week'.format(now.isoweekday()))
-            first_alert = bot.send_message(config.N_TEST_CHAT_ID,
+            first_alert = bot.send_message(config.N_TEST_MY_ID,
                                                  'Today:\n{}'.format(config.N_CALENDAR_VOCABULARY[now.isoweekday() - 1]))
-            second_alert = bot.send_message(config.N_TEST_CHAT_ID,
+            second_alert = bot.send_message(config.N_TEST_MY_ID,
                                                   'Tomorrow:\n{}'.format(config.N_CALENDAR_VOCABULARY[(now.isoweekday()) % 7]))
 
             try:
