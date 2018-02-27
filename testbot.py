@@ -32,6 +32,7 @@ def daily_mail():
         now = datetime.datetime.now()
         today = now.day
         hour = now.hour
+	print('fuck')
 
         #if today == config.N_NEXT_DAY and hour == config.N_SUBSCRIBERS_HOUR:  # our time is +3 hours
         if True:
